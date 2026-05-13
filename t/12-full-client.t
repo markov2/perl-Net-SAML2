@@ -1,3 +1,4 @@
+#use lib '/home/perl/5.38.2/lib/site_perl/5.38.2';
 use strict;
 use warnings;
 
@@ -70,7 +71,7 @@ isa_ok($redirect, "Net::SAML2::Binding::Redirect", "Redirect created successfull
 # Sign the AuthnRequest and generate the URL
 #############################################
 my $url = $redirect->sign($authnreq->as_xml);
-ok($url =~ /rsa/, "Sucessfully signed AuthnRequest");
+ok($url =~ /rsa/, "Successfully signed AuthnRequest");
 
 ############################################
 # Redirect to the user's browser to the URL
