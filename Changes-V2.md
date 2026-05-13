@@ -89,6 +89,16 @@ For comparison
 Internal errors can best case a `confess` (`croak` with stack-trace).
 Some `die` uses are probably `croak` of `confess`.
 
+## Parsing and creating XML all the time
+
+In many places, XML is being constructed, then stringified to call
+a function, then parsed again.  This is pretty clumsy and slows down
+processing.  Part of the problem is that `XML::Generator` is used to
+create XML, and `XML::LibXML` to read it.
+
+Shameless plug: SAML2 has a schema, so `XML::Compile::Schema` would
+make your life very, very simple.
+
 ## Package renames
 
 Backwards compatibility breaking:
@@ -130,9 +140,9 @@ This is now not possible, because each method uses a `=head2`; it should become 
 
 # Future plans
 
-## Net::SAML2::Client
+## `Net::SAML2::Client`
 
-The older interface of Net::SAML2 requires the use of long path names for
+The older interface of `Net::SAML2` requires the use of long path names for
 message classes.  This is really inconvenient.
 
 Apparently, I am not the only one with that feeling so later simplifications
@@ -151,9 +161,12 @@ by hiding awkward long explicit package paths, but this functionality is *not* t
 task of the SP object.  The SP object (see attributes) is about grouping SP information,
 not implementing the protocol.
 
-The correct location is Net::SAML2::Client.
+The correct location is a new `Net::SAML2::Client`.
 ```perl
-  my $saml = Net::SAML2::Client->new(sp => $sp);
+  my $saml = Net::SAML2::Client->new(
+     service_provider  => $sp,
+     identity_provider => $idp,
+  );
 
   $saml->connect(...)
      or die "Failed to login";
