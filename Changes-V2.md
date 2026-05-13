@@ -14,25 +14,25 @@ It's a bit subjective, but the following decission tree helps:
   * when the logic implements something like an Java 'interface' towards and external distribution, then a Role is the best choice, and
   * when the logic is ment to simplify code, put it as function in Util.
 
-None of the existing ::Role:: packages implemented an interface so their logic
-was moved elsewhere.  Base classes Net::SAML2::Protocol and Net::SAML2::Binding
+None of the existing `::Role::` packages implemented an interface so their logic
+was moved elsewhere.  Base classes `Net::SAML2::Protocol` and `Net::SAML2::Binding`
 were created.
 
-## XML::LibXML::XPathContext
+## `XML::LibXML::XPathContext`
 
 This object was created on many places, and everywhere the prefixes were set again,
 with the chance of missing prefixes and other mistakes.
 
-Method ::Util::new_xpc() generated a standard configuration.
+Method `::Util::new_xpc()` generated a standard configuration.
 
-## Predicate has_attribute lies
+## Predicate `has_attribute` lies
 
 The old code expected that a true for `has_xyz` ment that `xyz`
 had a correct value, where it only means the parameter was passed at
 instantiation of the object.
 
 Especially, there were a few sleeping bugs with attributes containing
-an ARRAY.  In most cases, "list => undef" and "list => []", both mean
+an ARRAY.  In most cases, `list => undef` and `list => []`, both mean
 that the list is empty.  In the latter case, `has_list` is true.
 
 Rewrote all use of predicates.  In above case
@@ -50,11 +50,15 @@ has list => (..., default => sub {[]});
 print @{$self->list};  # print() with empty does nothing
 ```
 
-## XML::Sig interface to Net::SAML2::XML::Sig
+## `XML::Sig` interface to `Net::SAML2::XML::Sig`
 
-Net::SAML2::XML::Sig is very usefull to bridge the problems with
-XML::Sign with the main modules.  All quirks have moved there
+`Net::SAML2::XML::Sig` is very usefull to bridge the problems with
+`XML::Sig` with the main modules.  All quirks have moved there
 now.
+
+The only problem, it seems, is that `XML::Sig` produces the signature
+on the wrong location.  According to the SAML2 spec, it must be
+right behind the Issuer, hence as second child in the container.
 
 ## Documentation
 
@@ -66,18 +70,19 @@ In many places, HASH is confused with PAIRS, and ARRAY and array
 with LIST.
 
 For comparison
+```perl
+  $obj->call(%params);    # passed as LIST containing PAIRS
+  $obj->call(\%params);   # passed as LIST with one HASH
+  $obj->call(@values);    # passed a LIST of values from the array
+  $obj->call(\@values);   # passes one array reference: an ARRAY
 
-  $obj->call(%params)    # passed as LIST containing PAIRS
-  $obj->call(\%params)   # passed as LIST with one HASH
-  $obj->call(@values)    # passed a LIST of values from the array
-  $obj->call(\@values)   # passes one array reference: an ARRAY
+  print @values;          # prints a LIST of values, source from an array
+  my ($a, $b) = (1, 2);   # LIST assignment
+  my @values  = (1, 2);   # LIST assignment into an array
+  print Dumper \@v;       # prints the Dumper of an ARRAY
+```
 
-  print @values          # prints a LIST of values, source from an array
-  my ($a, $b) = (1, 2)   # LIST assignment
-  my @values  = (1, 2)   # LIST assignment into an array
-  print Dumper \@v       # prints the Dumper of an ARRAY
-
-# Possible improvements, not taken
+# Possible improvements, not taken (yet)
 
 ## die, croak, confess
 
@@ -87,26 +92,24 @@ Some `die` uses are probably `croak` of `confess`.
 ## Package renames
 
 Backwards compatibility breaking:
-
+```
   Net::SAML2::Protocol::Artifact --> Net::SAML2::Protocol::ArtifactResponse
   Net::SAML2::Protocol::ArtifactResolve --> Net::SAML2::Protocol::ArtifactRequest
   Net::SAML2::Protocol::Assertion --> Net::SAML2::Protocol::AssertionRequest
   Net::SAML2::Object::Response -> Net::SAML2::Protocol::AssertionResponse
-
+```
 They cannot easily be renamed, because the published interface of Net::SAML2
 uses explicit package names everywhere.
 
 ## ::Protocol --> ::Message
 
-I think that one of the reasons that Net::SAML2::Role::ProtocolMessage existed,
-is confusion about ::Protocol::  The modules, like Net::SAML2::Protocol::AuthnRequest
+I think that one of the reasons that `Net::SAML2::Role::ProtocolMessage` existed,
+is confusion about ::Protocol::  The modules, like `Net::SAML2::Protocol::AuthnRequest`
 do *not* implement the protocol: they implement messages.  Together, the messages
 implement the protocol.
 
-These packages usually implement both new_from_xml() and as_xml() (some are missing!)
+These packages usually implement both `new_from_xml()` and `as_xml()` (some are missing!)
 which is nice for debugging: you can go both ways.
-
-# Future improvements
 
 ## Removing Moose
 
@@ -118,6 +121,15 @@ the better choice.
 
 Removal of Moose is not difficult.
 
+## Documentation
+
+When the objects are larger, then you feel the need to group methods into document sections.
+For instance, sections `Constructors`, `Attributes`, and `Deprecated interface`.
+
+This is now not possible, because each method uses a `=head2`; it should become `=head3` globally.
+
+# Future plans
+
 ## Net::SAML2::Client
 
 The older interface of Net::SAML2 requires the use of long path names for
@@ -125,7 +137,7 @@ message classes.  This is really inconvenient.
 
 Apparently, I am not the only one with that feeling so later simplifications
 were added via Net::SAML2::SP.
-
+```perl
   my $authnreq = Net::SAML2::Protocol::AuthnRequest->new(
      issuer        => $sp->issuer,
      destination   => $sso_url,
@@ -133,20 +145,21 @@ were added via Net::SAML2::SP.
   );
 
   my $req = $sp->authn_request($sso_url, NAMEID_PERSISTENT, provider_name => $pname);
-
+```
 However: SP is *not* the right location.  It does simplify the code a bit, mainly
 by hiding awkward long explicit package paths, but this functionality is *not* the
 task of the SP object.  The SP object (see attributes) is about grouping SP information,
 not implementing the protocol.
 
 The correct location is Net::SAML2::Client.
-
+```perl
   my $saml = Net::SAML2::Client->new(sp => $sp);
 
   $saml->connect(...)
      or die "Failed to login";
 
   my $user_id = $saml->authenticate(...)
-     or die "User not known"
+     or die "User not known";
+```
 
 
