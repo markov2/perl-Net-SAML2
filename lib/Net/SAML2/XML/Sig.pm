@@ -28,6 +28,8 @@ convention with values in a HASH is too different to ignore.
 
 =head1 METHODS
 
+=head2 my $signer = $class->new(\%options)
+
 =head2 my $signer = $class->new(%options)
 
 Instantiate the signer logic.
@@ -48,11 +50,12 @@ and everything else L<XML::Sig> constructor C<new()> likes to eat.
 #XXX   sub init($) { my ($self, $args) = @_; ... }
 
 sub new {
-    my ($class, %args) = @_;
-    $args{sig_hash}    //= 'sha256';
-    $args{digest_hash} //= 'sha256';
+    my $class = shift;
+	my $args  = @_==1 ? shift : +{@_};
+    $args->{sig_hash}    //= 'sha256';
+    $args->{digest_hash} //= 'sha256';
 
-    $class->SUPER::new(\%args);
+    $class->SUPER::new($args);
 }
 
 =head2 my $signed_meta = $signer->sign_metadata($meta, %options)
