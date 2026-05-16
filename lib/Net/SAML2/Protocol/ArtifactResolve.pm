@@ -82,5 +82,3 @@ sub as_xml {
 }
 
 __PACKAGE__->meta->make_immutable;
-
-1;

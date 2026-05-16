@@ -198,5 +198,3 @@ sub _set_requested_authn_context {
 }
 
 __PACKAGE__->meta->make_immutable;
-
-1;

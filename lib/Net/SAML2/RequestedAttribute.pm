@@ -96,5 +96,3 @@ sub _build_attributes {
 }
 
 __PACKAGE__->meta->make_immutable;
-
-1;

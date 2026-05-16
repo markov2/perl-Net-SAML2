@@ -131,10 +131,8 @@ sub to_assertion {
     $self->assertions
         or croak "There are no assertions found in the response object";
 
-	#XXX Hum... from parsed XML into string, then parsed again.
+    #XXX Hum... from parsed XML into string, then parsed again.
     return Net::SAML2::Protocol::Assertion->new_from_xml(%args, xml => $self->to_string);
 }
 
 __PACKAGE__->meta->make_immutable;
-
-1;

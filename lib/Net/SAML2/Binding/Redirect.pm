@@ -255,5 +255,3 @@ sub _verify {
 }
 
 __PACKAGE__->meta->make_immutable;
-
-1;

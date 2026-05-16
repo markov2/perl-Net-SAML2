@@ -679,5 +679,3 @@ sub get_default_assertion_service {
 }
 
 __PACKAGE__->meta->make_immutable;
-
-1;
