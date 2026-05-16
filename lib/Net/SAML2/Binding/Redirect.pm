@@ -107,7 +107,8 @@ sub BUILD {
         defined $self->key || $self->insecure or croak "Need to have a key specified";
     }
     elsif($param eq 'SAMLResponse') {
-        defined $self->cert or croak "Need to have a cert specified";
+        my $certs = $self->cert || [];
+        @{$self->cert} or croak "Need to have a cert specified";
     }
 }
 
@@ -148,7 +149,6 @@ sub get_redirect_uri {
     my $uri = URI->new($self->url);
     $uri->query_param($self->param, $req);
     $uri->query_param(RelayState => $relaystate) if defined $relaystate;
-
     $self->insecure ? $uri->as_string : $self->_sign_redirect_uri($uri);
 }
 
@@ -160,10 +160,11 @@ sub _sign_redirect_uri {
     my $rsa_priv   = $pk->import_key(\$key_string);
 
     my $hashing    = uc $self->sig_hash;
+    $uri->query_param(SigAlg => hash2urn $hashing);
+
     my $to_sign    = $uri->query;
     my $sig        = $rsa_priv->sign_message($to_sign, $hashing, 'v1.5');
 
-    $uri->query_param(SigAlg    => hash2urn $hashing);
     $uri->query_param(Signature => encode_base64 $sig, '');
     $uri->as_string;
 }
@@ -177,7 +178,8 @@ Accepts an optional RelayState parameter, a string which will be
 returned to the requestor when the user returns from the
 authentication process with the IdP.
 
-Returns the signed (or unsigned) URL for the SAML2 redirect.
+Returns the signed (or unsigned when used insure) URL for the SAML2
+redirect.
 
 =cut
 
@@ -228,7 +230,8 @@ sub verify {
     my $request  = '';
     rawinflate \$deflated => \$request;
 
-    ($request, defined $params{RelayState} ? uri_unescape $params{RelayState} : undef);
+    my $state = defined $params{RelayState} ? uri_unescape $params{RelayState} : undef;
+    ($request, $state);
 }
 
 sub _verify {
