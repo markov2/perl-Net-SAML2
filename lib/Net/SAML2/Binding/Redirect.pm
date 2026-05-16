@@ -94,10 +94,6 @@ has debug     => (isa => 'Bool', is => 'ro');
 has param     => (isa => SAMLRequestType,  is => 'ro', default => 'SAMLRequest');
 has sig_hash  => (isa => signingAlgorithm, is => 'ro', default => 'sha256');
 
-=for Pod::Coverage BUILD
-
-=cut
-
 sub BUILD {
     my $self  = shift;
     my $param = $self->param;

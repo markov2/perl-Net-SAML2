@@ -1,4 +1,3 @@
-#use lib '/home/perl/5.38.2/lib/site_perl/5.38.2';
 use strict;
 use warnings;
 

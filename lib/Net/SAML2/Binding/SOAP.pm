@@ -45,8 +45,11 @@ C<new()>, and additional C<%options>:
 
 =item B<ua> => L<LWP::UserAgent> object
 
-You can build the user agent to your liking when extending this class by
-overriding C<build_user_agent>.  You may also tune the ua via the 
+Pass your own, fully prepared, user-agent.  For instance, when you wish to
+use https.
+
+You can also build the user agent to your liking when extending this class by
+overriding C<build_user_agent>.  Besides, you may also tune the default C<ua> via the 
 L<PERL_LWP_SSL_CA_FILE, HTTPS_CA_FILE|https://metacpan.org/pod/LWP::UserAgent#SSL_ca_file-=%3E-$path>,
 L<PERL_LWP_SSL_CA_PATH and HTTPS_CA_DIR|https://metacpan.org/pod/LWP::UserAgent#SSL_ca_path-=%3E-$path>
 environment variables.
@@ -71,9 +74,7 @@ The idp's signing certificates.
 
 =cut
 
-has ua => (isa => 'Object', is => 'ro', lazy => 1, builder => 'build_user_agent');
-sub build_user_agent { LWP::UserAgent->new }  # Gumble... doc says overrideable
-
+has ua       => (isa => 'Object', is => 'ro', lazy => 1, builder => 'build_user_agent');
 has url      => (isa =>  Uri,  is => 'ro', required => 1, coerce => 1);
 has key      => (isa => 'Str', is => 'ro', required => 1);
 has cert     => (isa => 'Str', is => 'ro', required => 1);
@@ -89,6 +90,15 @@ around BUILDARGS => sub {
     }
     $self->$orig(%params);
 };
+
+=head2 build_user_agent
+
+Builder for the user agent (for the C<ua> attribute>).  It should return
+a L<LWP::UserAgent> compatible object.
+
+=cut
+
+sub build_user_agent { LWP::UserAgent->new }  # Gumble... doc says overrideable
 
 =head2 my $response = $soap->request($message)
 

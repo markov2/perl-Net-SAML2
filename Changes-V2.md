@@ -138,6 +138,11 @@ For instance, sections `Constructors`, `Attributes`, and `Deprecated interface`.
 
 This is now not possible, because each method uses a `=head2`; it should become `=head3` globally.
 
+## Reparsing of certificates and keys
+
+Probably, it helps to read certificate and key source on the moment the object
+is created.  Or, at least, cache their results.
+
 # Future plans
 
 ## `Net::SAML2::Client`
@@ -174,5 +179,3 @@ The correct location is a new `Net::SAML2::Client`.
   my $user_id = $saml->authenticate(...)
      or die "User not known";
 ```
-
-

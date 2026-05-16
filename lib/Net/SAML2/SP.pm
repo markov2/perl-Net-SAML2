@@ -156,6 +156,10 @@ Consumer Services.
     },
   ]
 
+=item B<id> => $url
+
+[0.78] Deprecated: replaced by C<issuer>.
+
 =back
 
 =cut
@@ -274,7 +278,6 @@ around BUILDARGS => sub {
 
     $self->$orig(%args);
 };
-
 
 sub id {
     my $self = shift;
