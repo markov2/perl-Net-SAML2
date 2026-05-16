@@ -51,7 +51,7 @@ and everything else L<XML::Sig> constructor C<new()> likes to eat.
 
 sub new {
     my $class = shift;
-	my $args  = @_==1 ? shift : +{@_};
+    my $args  = @_==1 ? shift : +{@_};
     $args->{sig_hash}    //= 'sha256';
     $args->{digest_hash} //= 'sha256';
 
@@ -108,7 +108,7 @@ sub sign_message {
     #XXX "sequence" enforces strict order so: XML::Sig is wrong.
     #XXX No XPATH needed: always after the Issuer.
 
-    $signed =~ s!(<ds:Signature.*?</ds:Signature>)!!s;
+    $signed =~ s!(<dsig:Signature.*?</dsig:Signature>)!!s;
     my $signature = $1;
     $signed =~ s/(<\/saml:Issuer>)/$1$signature/;
 
