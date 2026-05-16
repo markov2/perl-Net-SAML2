@@ -98,7 +98,7 @@ a L<LWP::UserAgent> compatible object.
 
 =cut
 
-sub build_user_agent { LWP::UserAgent->new }  # Gumble... doc says overrideable
+sub build_user_agent { return LWP::UserAgent->new }
 
 =head2 my $response = $soap->request($message)
 
@@ -124,7 +124,7 @@ sub request {
     $res->is_success
         or croak sprintf("Unable to perform request: %s (%s)", $res->message, $res->code);
 
-    $self->handle_response($res->decoded_content);
+    return $self->handle_response($res->decoded_content);
 }
 
 =head2 my $saml = $soap->handle_response($response)
@@ -163,7 +163,7 @@ sub handle_response {
     !@errors
         or croak "Unable to verify XML with the given certificates: " . join(", ", @errors);
 
-    undef;
+    return undef;
 }
 
 =head2 my $success = $soap->handle_request($request)
@@ -195,14 +195,14 @@ sub handle_request {
     !@errors
         or croak "Unable to verify XML with the given certificates: ". join(", ", @errors);
 
-    undef;
+    return undef;
 }
 
 sub _get_saml_from_soap {
     my $soap = shift;
     my $xpc  = new_xpc xml_without_comments $soap;
     my $saml = $xpc->findnodes('/soap-env:Envelope/soap-env:Body/*')->shift;
-    $saml ? $saml->toString : undef;
+    return $saml ? $saml->toString : undef;
 }
 
 =head2 my $xml = $soap->create_soap_envelope($message)
@@ -228,7 +228,7 @@ sub create_soap_envelope {
     my $ret = $signer->verify($signed_message)
         or confess "failed to sign soap message correctly";
 
-    <<"__SOAP";
+    return <<"__SOAP";
 <SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/"><SOAP-ENV:Body>$signed_message</SOAP-ENV:Body></SOAP-ENV:Envelope>
 __SOAP
 }

@@ -142,7 +142,7 @@ sub as_xml {
     @are_null = grep !defined $issuer_attrs{$_}, keys %issuer_attrs;
     delete @issuer_attrs{@are_null} if @are_null;
 
-    $make->AuthnRequest($samlp,
+    return $make->AuthnRequest($samlp,
         \%req_attrs,
         $make->Issuer($saml, \%issuer_attrs, $self->issuer),
         $self->_set_name_id($make),
@@ -158,14 +158,14 @@ sub _set_scoping {
     @$providers or return undef;
 
     my @providers = map $make->IDPEntry($samlp, { ProviderID => $_ }), @$providers;
-    $make->Scoping($samlp, $make->IDPList($samlp, @providers));
+    return $make->Scoping($samlp, $make->IDPList($samlp, @providers));
 }
 
 sub _set_name_id {
     my ($self, $make) = @_;
     my $nameid = $self->nameid;
     defined $nameid or return undef;
-    $make->Subject($saml, $make->NameID($saml, { NameQualifier => $nameid }));
+    return $make->Subject($saml, $make->NameID($saml, { NameQualifier => $nameid }));
 }
 
 sub _set_name_policy_format {
@@ -173,7 +173,7 @@ sub _set_name_policy_format {
     my $format = $self->nameidpolicy_format;
     defined $format or return undef;
 
-    $make->NameIDPolicy($samlp, {
+    return $make->NameIDPolicy($samlp, {
         Format => $format,
         ($self->nameid_allow_create ? (AllowCreate => xml_bool($self->nameid_allow_create)) : ()),
     });
@@ -189,7 +189,7 @@ sub _set_requested_authn_context {
     my @class = map $make->AuthnContextClassRef($saml, undef, $_), @$c;
     my @decl  = map $make->AuthnContextDeclRef($saml, undef, $_), @$d;
 
-    $make->RequestedAuthnContext(
+    return $make->RequestedAuthnContext(
         $samlp,
         { Comparison => $self->RequestedAuthnContext_Comparison },
         @class,

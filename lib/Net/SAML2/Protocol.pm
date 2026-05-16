@@ -28,7 +28,7 @@ Base class for all protocol messages.
 =cut
 
 has id => (isa => XsdID, is => 'ro', builder => '_build_id');
-sub _build_id { generate_id() }
+sub _build_id { return generate_id() }
 
 # Moose is horrible
 class_type 'DateTimeClass', { class => 'DateTime' };
@@ -128,7 +128,7 @@ my %statuses = (
 
 sub status_uri {
     my ($self, $status) = @_;
-    $statuses{$status};
+    return $statuses{$status};
 }
 
 =head2 my $is_success = $message->success
@@ -139,7 +139,7 @@ Returns true when the message was handled successfully.
 
 sub success {
     my $self = shift;
-    $self->status eq STATUS_SUCCESS;
+    return $self->status eq STATUS_SUCCESS;
 }
 
 =head2 my $id = $response->response_to()
@@ -151,7 +151,7 @@ sub success {
 sub response_to {
     my $self = shift;
     deprecation_warning "Please use in_response_to instead of response_to";
-    $self->in_response_to;
+    return $self->in_response_to;
 } 
 
 1;

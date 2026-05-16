@@ -106,7 +106,7 @@ sub verify_xml {
             or croak "Could not verify trust anchors of certificate!";
     }
 
-    undef;
+    return undef;
 }
 
 =head2 my $urn = $class->urnFor($urn|$name)
@@ -128,7 +128,7 @@ my %bindings = (
 
 sub urnFor {
     my ($self, $name) = @_;
-    $bindings{$name} // $name;
+    return $bindings{$name} // $name;
 }
 
 1;

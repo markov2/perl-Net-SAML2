@@ -38,7 +38,7 @@ Collection of utility functions.
 Generate a NETSAML2 Request Id.
 =cut
 
-sub generate_id { 'NETSAML2_' . unpack 'H*', random_pseudo_bytes(32) }
+sub generate_id { return 'NETSAML2_' . unpack 'H*', random_pseudo_bytes(32) }
 
 =head2 deprecation_warning($warning);
 
@@ -46,7 +46,7 @@ Show a warning that a Deprecated feature is being used
 
 =cut
 
-sub deprecation_warning($) { warn "Net::SAML2 deprecation warning: $_[0]\n" }
+sub deprecation_warning($) { warn "Net::SAML2 deprecation warning: $_[0]\n"; return }
 
 =head2 $dom = xml_without_comments($string);
 
@@ -72,7 +72,7 @@ sub xml_without_comments($) {
         $comment_node->parentNode->removeChild($comment_node);
     }
 
-    $dom;
+    return $dom;
 }
 
 =head2 my $xpc = new_xpc [$node]
@@ -97,7 +97,7 @@ sub new_xpc(;$)
     $xpc->registerNs(md    => URN_METADATA);
 
     $xpc->setContextNode($dom) if defined $dom;
-    $xpc;
+    return $xpc;
 }
 
 =head2 my $xml = xml_bool $value
@@ -109,7 +109,7 @@ a C<$value> of 'false' will also be seen as false.
 
 sub xml_bool($)
 {   my $v = shift;
-    !$v || $v eq 'false' ? 'false' : 'true';
+    return !$v || $v eq 'false' ? 'false' : 'true';
 }
 
 my %hash_algo = (
@@ -129,7 +129,7 @@ Returns C<undef> when the C<$hash> is not supported.
 
 =cut
 
-sub hash2urn($) { $hash_algo{uc $_[0]} }
+sub hash2urn($) { return $hash_algo{uc $_[0]} }
 
 =head2 my $hash = urn2hash $urn
 
@@ -138,7 +138,7 @@ Convert the C<$urn> which represents a hashing algorithm into a code
 
 =cut
 
-sub urn2hash($) { $hash_name{$_[0]} }
+sub urn2hash($) { return $hash_name{$_[0]} }
 
 1;
 

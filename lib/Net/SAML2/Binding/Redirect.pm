@@ -106,6 +106,8 @@ sub BUILD {
         my $certs = $self->cert || [];
         @{$self->cert} or croak "Need to have a cert specified";
     }
+
+    return;
 }
 
 around BUILDARGS => sub {
@@ -115,7 +117,7 @@ around BUILDARGS => sub {
         $params{cert} = [ $cert ] if ref $cert ne 'ARRAY';
     }
 
-    $self->$orig(%params);
+    return $self->$orig(%params);
 };
 
 =head2 my $url = $redirect->get_redirect_uri($authn_request, $relaystate)
@@ -145,7 +147,8 @@ sub get_redirect_uri {
     my $uri = URI->new($self->url);
     $uri->query_param($self->param, $req);
     $uri->query_param(RelayState => $relaystate) if defined $relaystate;
-    $self->insecure ? $uri->as_string : $self->_sign_redirect_uri($uri);
+
+    return $self->insecure ? $uri->as_string : $self->_sign_redirect_uri($uri);
 }
 
 sub _sign_redirect_uri {
@@ -162,7 +165,7 @@ sub _sign_redirect_uri {
     my $sig        = $rsa_priv->sign_message($to_sign, $hashing, 'v1.5');
 
     $uri->query_param(Signature => encode_base64 $sig, '');
-    $uri->as_string;
+    return $uri->as_string;
 }
 
 =head2 my $xml = $redirect->sign($request, $relaystate)
@@ -185,7 +188,7 @@ sub sign {
     ! $self->insecure
         or croak "Cannot sign an insecure request!";
 
-    $self->get_redirect_uri($request, $relaystate);
+    return $self->get_redirect_uri($request, $relaystate);
 }
 
 =head2 my @pair = $redirect->verify($query_string)
@@ -227,7 +230,7 @@ sub verify {
     rawinflate \$deflated => \$request;
 
     my $state = defined $params{RelayState} ? uri_unescape $params{RelayState} : undef;
-    ($request, $state);
+    return ($request, $state);
 }
 
 sub _verify {

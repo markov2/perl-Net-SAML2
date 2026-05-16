@@ -74,7 +74,7 @@ sub handle_response {
         $self->cacert    ? (cacert    => $self->cacert) : (),
     );
 
-    $xml;
+    return $xml;
 }
 
 =head2 my $b64_xml = $post->sign_xml($request)
@@ -97,7 +97,7 @@ sub sign_xml {
 
     my $signed_message = $signer->sign_message($request);
 
-    encode_base64 $signed_message, "\n";
+    return encode_base64 $signed_message, "\n";
 }
 
 __PACKAGE__->meta->make_immutable;

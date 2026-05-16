@@ -73,7 +73,7 @@ sub new_from_xml {
         $issue_instant = DateTime::Format::XSD->parse_datetime($value);
     }
 
-    $class->new(
+    return $class->new(
         id              => $xpc->findvalue('@ID', $reply),
         in_response_to  => $xpc->findvalue('@InResponseTo', $reply),
         issue_instant   => $issue_instant,
@@ -92,7 +92,7 @@ Returns the Response node as an XML string.
 
 sub response {
     my $r = shift->response_object;
-    $r ? $r->toString : undef;
+    return $r ? $r->toString : undef;
 }
 
 =head2 my $string = $response->logout_response()
@@ -103,7 +103,7 @@ Returns the LogoutResponse node as an XML string.
 
 sub logout_response {
     my $lr = shift->logoutresponse_object;
-    $lr ? $lr->toString : undef;
+    return $lr ? $lr->toString : undef;
 }
 
 =head2 my $string = $response->get_response()
@@ -115,7 +115,7 @@ otherwise the Response node.
 
 sub get_response {
     my ($self) = @_;
-    $self->logout_response // $self->response;
+    return $self->logout_response // $self->response;
 }
 
 1;

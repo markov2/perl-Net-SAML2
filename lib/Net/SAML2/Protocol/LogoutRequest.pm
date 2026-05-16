@@ -131,7 +131,7 @@ sub new_from_xml {
     $params{nameid_format} = $nameid_format
         if NonEmptySimpleStr->check($nameid_format);
 
-    $class->new(%params);
+    return $class->new(%params);
 }
 
 =head2 my $xml = $request->as_xml()
@@ -152,7 +152,7 @@ sub as_xml {
     my $sspid  = $self->sp_provided_id;
     my $nameq  = $self->name_qualifier // $dest;
 
-    $x->xml(
+    return $x->xml(
         $x->LogoutRequest(
             $samlp,
             {

@@ -67,7 +67,7 @@ sub as_xml {
     my $samlp    = [ samlp => URN_PROTOCOL  ];
     my $provider = $self->provider;
 
-    $make->xml(
+    return $make->xml(
         $make->ArtifactResolve($samlp, {
               ID => $self->id,
               IssueInstant => $self->issue_instant,

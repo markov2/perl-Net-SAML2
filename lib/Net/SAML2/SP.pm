@@ -282,7 +282,7 @@ around BUILDARGS => sub {
 sub id {
     my $self = shift;
     deprecation_warning "id() has been renamed to issuer()";
-    $self->issuer;
+    return $self->issuer;
 }
 
 has _encryption_key_text => (isa => 'Str', is => 'ro', init_arg => undef, lazy => 1,
@@ -292,7 +292,7 @@ sub _build_encryption_key_text {
     my ($self) = @_;
     my $key  = $self->encryption_key or return '';
     my $cert = Crypt::OpenSSL::X509->new_from_file($key);
-    $cert->as_string =~ s/-----[^-]*-----//gmr;
+    return $cert->as_string =~ s/-----[^-]*-----//gmr;
 }
 
 has _cert_text => (isa => 'Str', is => 'ro', init_arg => undef, lazy => 1,
@@ -302,7 +302,7 @@ sub _build_cert_text {
     my ($self) = @_;
     my $c    = $self->cert or return '';
     my $cert = Crypt::OpenSSL::X509->new_from_file($c);
-    $cert->as_string =~ s/-----[^-]*-----//gmr;
+    return $cert->as_string =~ s/-----[^-]*-----//gmr;
 }
 
 =head2 my $request = $sp->authn_request($dest, $nameid_format, %options)
@@ -326,7 +326,7 @@ constructor C<new()>, where the C<issuer> is added automatically.
 sub authn_request {
     my ($self, $destination, $nameid_format, %args) = @_;
 
-    Net::SAML2::Protocol::AuthnRequest->new(
+    return Net::SAML2::Protocol::AuthnRequest->new(
         issuer              => $self->issuer,
         destination         => $destination,
         nameidpolicy_format => $nameid_format // '',
@@ -354,7 +354,7 @@ constructor C<new()>.
 sub logout_request {
     my ($self, $destination, $nameid, $nameid_format, $session, $params) = @_;
 
-    Net::SAML2::Protocol::LogoutRequest->new(
+    return Net::SAML2::Protocol::LogoutRequest->new(
         issuer        => $self->issuer,
         destination   => $destination,
         nameid        => $nameid,
@@ -387,7 +387,7 @@ sub logout_response {
     #XXX move
     my $status_uri = Net::SAML2::Protocol::LogoutResponse->status_uri($status);
 
-    Net::SAML2::Protocol::LogoutResponse->new(
+    return Net::SAML2::Protocol::LogoutResponse->new(
         issuer          => $self->issuer,
         destination     => $destination,
         status          => $status_uri,
@@ -410,7 +410,7 @@ C<issuer> is added automatically.
 sub artifact_request {
     my ($self, $destination, $artifact, %args) = @_;
 
-    Net::SAML2::Protocol::ArtifactResolve->new(
+    return Net::SAML2::Protocol::ArtifactResolve->new(
         issuer       => $self->issuer,
         destination  => $destination,
         artifact     => $artifact,
@@ -433,7 +433,7 @@ sub sp_post_binding {
     $idp or croak "Unable to create a post binding without an IDP";
     my ($param, %args) = @_ % 2 ? @_ : (undef, @_);
 
-    Net::SAML2::Binding::POST->new(
+    return Net::SAML2::Binding::POST->new(
         url   => $idp->sso_url('post'),
         cert  => $self->cert,
         $self->authnreq_signed ? (key => $self->key) : (insecure => 1),
@@ -459,7 +459,7 @@ sub sso_redirect_binding {
     $idp or croak "Unable to create a redirect binding without an IDP";
     my ($param, %args) = @_ % 2 ? @_ : (undef, @_);
 
-    Net::SAML2::Binding::Redirect->new(
+    return Net::SAML2::Binding::Redirect->new(
         url   => $idp->sso_url('redirect'),
         cert  => $idp->cert('signing'),
         $self->authnreq_signed ? (key => $self->key) : (insecure => 1),
@@ -484,7 +484,7 @@ sub slo_redirect_binding {
     $idp or croak "Unable to create a redirect binding without an IDP";
     my ($param, %args) = @_ % 2 ? @_ : (undef, @_);
 
-    Net::SAML2::Binding::Redirect->new(
+    return Net::SAML2::Binding::Redirect->new(
         url   => $idp->sso_url('redirect'),
         cert  => $idp->cert('signing'),
         $self->authnreq_signed ? (key => $self->key) : (insecure => 1),
@@ -506,7 +506,7 @@ C<key>, C<cert>, and C<cacert> are added automatically.
 sub soap_binding {
     my ($self, $ua, $idp_url, $idp_cert, %args) = @_;
 
-    Net::SAML2::Binding::SOAP->new(
+    return Net::SAML2::Binding::SOAP->new(
         ua       => $ua,
         key      => $self->key,
         cert     => $self->cert,
@@ -528,7 +528,7 @@ passed-on automatically.
 sub post_binding {
     my ($self, %args) = @_;
 
-    Net::SAML2::Binding::POST->new(
+    return Net::SAML2::Binding::POST->new(
         cacert => $self->cacert,
         %args,
     );
@@ -559,7 +559,7 @@ sub generate_metadata {
     my @encryption = $self->encryption_key ? ('encryption', 'signing') : 'both';
     my $lang       = { 'xml:lang' => $self->lang };
 
-    $x->xml( $x->EntityDescriptor(
+    return $x->xml( $x->EntityDescriptor(
         $md, { entityID => $self->issuer, ID => $self->_id },
         $x->SPSSODescriptor(
             $md,
@@ -599,7 +599,7 @@ sub _generate_key_descriptors {
     my $key = $use eq 'encryption' ? $self->_encryption_key_text : $self->_cert_text;
     $use    = 'signing' if $self->signing_only && $use eq 'both';
 
-    $x->KeyDescriptor(
+    return $x->KeyDescriptor(
         $md,
         ($use eq 'both' ? {} : { use => $use }),
         $x->KeyInfo(
@@ -622,17 +622,17 @@ key.
 sub key_name {
     my ($self, $use) = @_;
     my $key = $use eq 'encryption' ? $self->_encryption_key_text : $self->_cert_text;
-    $key ? md5_hex($key) : undef;
+    return $key ? md5_hex($key) : undef;
 }
 
 sub _generate_single_logout_service {
     my ($self, $x) = @_;
-    map $x->SingleLogoutService($md, $_), @{$self->single_logout_service};
+    return map $x->SingleLogoutService($md, $_), @{$self->single_logout_service};
 }
 
 sub _generate_assertion_consumer_service {
     my ($self, $x) = @_;
-    map $x->AssertionConsumerService($md, $_), @{$self->assertion_consumer_service};
+    return map $x->AssertionConsumerService($md, $_), @{$self->assertion_consumer_service};
 }
 
 
@@ -654,7 +654,7 @@ sub metadata {
 
     # Sign the metadata
 
-    Net::SAML2::XML::Sig->new(
+    return Net::SAML2::XML::Sig->new(
         key      => $self->key,
         cert     => $self->cert,
         x509     => 1,
@@ -675,7 +675,7 @@ sub get_default_assertion_service {
 
     my $default = first { my $d = $_->{isDefault} // 0; $d eq 1 || $d eq 'true' } @$acs;
     $default  //= first { ! defined $_->{isDefault} } @$acs;
-    $default  //  $acs->[0];
+    return $default // $acs->[0];
 }
 
 __PACKAGE__->meta->make_immutable;

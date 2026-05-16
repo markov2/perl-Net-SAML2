@@ -72,7 +72,7 @@ sub new_from_xml {
     my $resp = $xpc->findnodes('/samlp:LogoutResponse')->shift;
     my $code = $xpc->findnodes('samlp:Status/samlp:StatusCode', $resp)->shift;
 
-    $class->new(
+    return $class->new(
         id             => $xpc->findvalue('@ID', $resp),
         in_response_to => $xpc->findvalue('@InResponseTo', $resp),
         destination    => $xpc->findvalue('@Destination', $resp),
@@ -96,7 +96,7 @@ sub as_xml {
     my $saml  = [ saml  => URN_ASSERTION ];
     my $samlp = [ samlp => URN_PROTOCOL  ];
 
-    $x->xml(
+    return $x->xml(
         $x->LogoutResponse($samlp, {
                ID           => $self->id,
                Version      => '2.0',

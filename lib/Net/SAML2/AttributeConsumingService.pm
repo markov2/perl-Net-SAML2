@@ -90,7 +90,7 @@ sub to_xml {
     my $ns    = $self->namespace;
     my $lang  = +{ 'xml:lang' => $self->lang };
 
-    $make->AttributeConsumingService(
+    return $make->AttributeConsumingService(
         $ns,
         {
             index     => $self->index,

@@ -70,7 +70,7 @@ sub to_xml {
     my $self = shift;
     my %attrs = $self->_build_attributes;
     my $make  = $self->_xml_gen();
-    $make->RequestedAttribute($self->namespace, \%attrs);
+    return $make->RequestedAttribute($self->namespace, \%attrs);
 }
 
 =head2 my %attrs = $attr->_build_attributes()
@@ -88,11 +88,11 @@ sub _build_attributes {
     my $self     = shift;
     my $friendly = $self->friendly_name // '';
 
-     +(
+    return +(
         $self->required ? (isRequired => 'true') : (),
         Name => $self->name,
         length $friendly ? (FriendlyName => $friendly) : (),
-      );
+    );
 }
 
 __PACKAGE__->meta->make_immutable;

@@ -68,7 +68,7 @@ sub new_from_xml {
 
     my $nodes     = $xpc->findnodes('//saml:EncryptedAssertion|//saml:Assertion', $response);
 
-    $class->new(
+    return $class->new(
         dom       => $dom,
         status    => $status,
         substatus => $substatus,
@@ -86,11 +86,11 @@ to stringify when interpolated.
 
 =cut
 
-has dom        => (isa => 'XML::LibXML::Node', is => 'ro', required => 1);
+has dom  => (isa => 'XML::LibXML::Node', is => 'ro', required => 1);
 
 sub to_string {
     my $self = shift;
-    $self->dom->toString;
+    return $self->dom->toString;
 }
 
 =head2 my $status = $response->status()
@@ -115,7 +115,7 @@ has assertions => (isa => 'XML::LibXML::NodeList', is => 'ro');
 sub has_assertions()
 {   my $self  = shift;
     my $nodes = $self->assertions or return;
-    $nodes->size;
+    return $nodes->size;
 }
 
 =head2 my $assert = $response->to_assertion(%options)
@@ -132,7 +132,7 @@ sub to_assertion {
         or croak "There are no assertions found in the response object";
 
 	#XXX Hum... from parsed XML into string, then parsed again.
-    Net::SAML2::Protocol::Assertion->new_from_xml(%args, xml => $self->to_string);
+    return Net::SAML2::Protocol::Assertion->new_from_xml(%args, xml => $self->to_string);
 }
 
 __PACKAGE__->meta->make_immutable;

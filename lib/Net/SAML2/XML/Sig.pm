@@ -55,7 +55,7 @@ sub new {
     $args->{sig_hash}    //= 'sha256';
     $args->{digest_hash} //= 'sha256';
 
-    $class->SUPER::new($args);
+    return $class->SUPER::new($args);
 }
 
 =head2 my $signed_meta = $signer->sign_metadata($meta, %options)
@@ -81,7 +81,7 @@ sub sign_metadata {
     $rootnode->insertBefore($signode, $child); 
 
     # Create the XML
-    '<?xml version="1.0" encoding="UTF-8"?>' . $rootnode->toString;
+    return '<?xml version="1.0" encoding="UTF-8"?>' . $rootnode->toString;
 }
 
 =head2 my $signed_msg = $signer->sign_message($msg, %options)
@@ -112,7 +112,7 @@ sub sign_message {
     my $signature = $1;
     $signed =~ s/(<\/saml:Issuer>)/$1$signature/;
 
-    $signed;
+    return $signed;
 }
 
 =head2 my $success = $signer->verify($xml, %options)
@@ -120,7 +120,7 @@ sub sign_message {
 
 sub verify {
     my ($self, $xml, %args) = @_;
-    $self->SUPER::verify($xml);  # no args yet
+    return $self->SUPER::verify($xml);  # no args yet
 }
 
 1;

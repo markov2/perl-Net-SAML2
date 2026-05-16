@@ -154,7 +154,7 @@ sub _verify_encrypted_assertion {
     $ca->verify($cert)
         or die "Unable to verify signer cert with cacert: " . $cert->subject;
 
-    $xml;
+    return $xml;
 }
 
 sub new_from_xml {
@@ -217,7 +217,7 @@ sub new_from_xml {
         $substatus = $s->getAttribute('Value');
     }
 
-    $class->new(
+    return $class->new(
         id              => $xpc->findvalue('//saml:Assertion/@ID'),
         issuer          => $xpc->findvalue('//saml:Assertion/saml:Issuer'),
         destination     => $xpc->findvalue('/samlp:Response/@Destination'),
@@ -240,7 +240,7 @@ Returns the CN attribute, if provided.
 
 =cut
 
-sub name { shift->attributes->{CN}[0] }
+sub name { return shift->attributes->{CN}[0] }
 
 =head2 my $nameid = $assert->nameid()
 
@@ -251,7 +251,7 @@ Returns the NameID.
 sub nameid {
     my $self   = shift;
     my $nameid = $self->nameid_object;
-    $nameid ? $nameid->textContent : undef;
+    return $nameid ? $nameid->textContent : undef;
 }
 
 =head2 my $format = $assert->nameid_format()
@@ -263,7 +263,7 @@ Returns the NameID Format.
 sub nameid_format {
     my $self   = shift;
     my $nameid = $self->nameid_object;
-    $nameid ? $nameid->getAttribute('Format') : undef;
+    return $nameid ? $nameid->getAttribute('Format') : undef;
 }
 
 =head2 my $qual = $assert->nameid_name_qualifier()
@@ -275,7 +275,7 @@ Returns the NameID NameQualifier
 sub nameid_name_qualifier {
     my $self   = shift;
     my $nameid = $self->nameid_object;
-    $nameid ? $nameid->getAttribute('NameQualifier') : undef
+    return $nameid ? $nameid->getAttribute('NameQualifier') : undef;
 }
 
 =head2 my $qual = $assert->nameid_sp_name_qualifier()
@@ -287,7 +287,7 @@ Returns the NameID SPNameQualifier.
 sub nameid_sp_name_qualifier {
     my $self   = shift;
     my $nameid = $self->nameid_object;
-    $nameid ? $nameid->getAttribute('SPNameQualifier') : undef
+    return $nameid ? $nameid->getAttribute('SPNameQualifier') : undef;
 }
 
 =head2 my $spid = $assert->nameid_sp_provided_id()
@@ -299,7 +299,7 @@ Returns the NameID SPProvidedID
 sub nameid_sp_provided_id {
     my $self = shift;
     my $nameid = $self->nameid_object;
-    $nameid ? $nameid->getAttribute('SPProvidedID') : undef;
+    return $nameid ? $nameid->getAttribute('SPProvidedID') : undef;
 }
 
 =head2 my $stm = $assert->authnstatement()
@@ -311,7 +311,7 @@ Returns the AuthnStatement xml content as text.
 sub authnstatement {
     my $self = shift;
     my $auth = $self->authnstatement_object;
-    $auth ? $auth->textContent : undef;
+    return $auth ? $auth->textContent : undef;
 }
 
 =head2 my $inst = $assert->authnstatement_authninstant()
@@ -323,7 +323,7 @@ Returns the AuthnStatement attribute AuthnInstant.
 sub authnstatement_authninstant {
     my $self = shift;
     my $auth = $self->authnstatement_object;
-    $auth ? $auth->getAttribute('AuthnInstant') : undef;
+    return $auth ? $auth->getAttribute('AuthnInstant') : undef;
 }
 
 =head2 my $index = $assert->authnstatement_sessionindex()
@@ -335,7 +335,7 @@ Returns the AuthnStatement attribute SessionIndex.
 sub authnstatement_sessionindex {
     my $self = shift;
     my $auth = $self->authnstatement_object;
-    $auth ? $auth->getAttribute('SessionIndex') : undef;
+    return $auth ? $auth->getAttribute('SessionIndex') : undef;
 }
 
 =head2 my $subj = $assert->authnstatement_subjectlocality()
@@ -347,7 +347,7 @@ Returns the AuthnStatement node SubjectLocality.
 sub authnstatement_subjectlocality {
     my $self = shift;
     my $auth = $self->authnstatement_object or return;
-    new_xpc($auth)->findnodes('//saml:AuthnStatement/saml:SubjectLocality')->shift;
+    return new_xpc($auth)->findnodes('//saml:AuthnStatement/saml:SubjectLocality')->shift;
 }
 
 =head2 my $address = $assert->subjectlocality_address()
@@ -359,7 +359,7 @@ Returns the SubjectLocality attribute Address.
 sub subjectlocality_address {
     my $self = shift;
     my $subjectlocality = $self->authnstatement_subjectlocality;
-    $subjectlocality ? $subjectlocality->getAttribute('Address') : undef;
+    return $subjectlocality ? $subjectlocality->getAttribute('Address') : undef;
 }
 
 =head2 my $hostname = $assert->subjectlocality_dnsname()
@@ -371,7 +371,7 @@ Returns the SubjectLocality attribute DNSName.
 sub subjectlocality_dnsname {
     my $self = shift;
     my $subjectlocality = $self->authnstatement_subjectlocality;
-    $subjectlocality ? $subjectlocality->getAttribute('DNSName') : undef;
+    return $subjectlocality ? $subjectlocality->getAttribute('DNSName') : undef;
 }
 
 =head2 my $ctx = $assert->authnstatement_authncontext()
@@ -383,7 +383,7 @@ Returns the AuthnContext node for the AuthnStatement.
 sub authnstatement_authncontext {
     my $self = shift;
     my $auth = $self->authnstatement_object or return;
-    $self->{authnctx} ||=
+    return $self->{authnctx} ||=
         new_xpc($auth)->findnodes('//saml:AuthnStatement/saml:AuthnContext')->shift;
 }
 
@@ -403,7 +403,7 @@ sub contextclass_authncontextclassref {
         return $value;
     }
 
-    $authncontextclassref;   #XXX fishy.  Return undef?
+    return $authncontextclassref;   #XXX fishy.  Return undef?
 }
 
 =head2 $assert->valid($audience, $in_response_to)
@@ -433,8 +433,8 @@ sub valid {
 
     # not_before is "NotBefore" element - exact match is ok
     # not_after is "NotOnOrAfter" element - exact match is *not* ok
-       DateTime->compare($now, $self->not_before) > -1
-    && DateTime->compare($self->not_after,  $now) > 0 ? 1 : 0; #XXX tests require false=0
+    return DateTime->compare($now, $self->not_before) > -1
+       && DateTime->compare($self->not_after,  $now) > 0 ? 1 : 0; #XXX tests require false=0
 }
 
 =head2 my $found = $assert->success
@@ -444,7 +444,7 @@ In case the assertion isn't successfull, the L</response_status> and L</response
 
 =cut
 
-sub success { shift->response_status eq STATUS_SUCCESS }
+sub success { return shift->response_status eq STATUS_SUCCESS }
 
 sub _decrypt {
     my ($self, $xml, %options) = @_;
@@ -453,7 +453,7 @@ sub _decrypt {
         or return $xml;
 
     my $enc = XML::Enc->new({ no_xml_declaration => 1, key => $key_file });
-    XML::LibXML->load_xml(string => $enc->decrypt($xml, %options));
+    return XML::LibXML->load_xml(string => $enc->decrypt($xml, %options));
 }
 
 1;

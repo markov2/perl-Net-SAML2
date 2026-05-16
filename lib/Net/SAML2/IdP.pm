@@ -110,7 +110,7 @@ sub _create_ua($) {
     {   require LWP::Protocol::https;
         $ua->ssl_opts(%$ssl_opts);
     }
-    $ua;
+    return $ua;
 }
 
 sub new_from_url {
@@ -121,7 +121,7 @@ sub new_from_url {
     $res->is_success
         or die sprintf "Error retrieving IdP metadata: %s (%s)\n", $res->message, $res->code;
 
-    $class->new_from_xml(xml => $res->decoded_content, cacert => $args{cacert});
+    return $class->new_from_xml(xml => $res->decoded_content, cacert => $args{cacert});
 }
 
 =head2 my $idp = Net::SAML2::IdP->new_from_xml(%options)
@@ -188,7 +188,7 @@ sub new_from_xml {
         }
     }
 
-    $class->new(
+    return $class->new(
         entityid => $xpc->findvalue('//md:EntityDescriptor/@entityID'),
         sso_urls => \%sso,
         slo_urls => \%slo,
@@ -217,7 +217,7 @@ sub _get_pem_from_keynode {
     }
     push @lines, $text if length $text;
 
-    join "\n",
+    return join "\n",
         '-----BEGIN CERTIFICATE-----',
         @lines,
         '-----END CERTIFICATE-----', '';
@@ -254,7 +254,7 @@ around BUILDARGS => sub {
         $params{certs} = \%certificates;
     }
 
-    $self->$orig(%params);
+    return $self->$orig(%params);
 };
 
 =head2 my $url = $idp->sso_url($binding)
@@ -267,7 +267,7 @@ The C<$binding> should be the full URI or [2.0] a name.
 sub sso_url {
     my ($self, $binding) = @_;
     my $uri = $self->binding($binding);
-    $self->sso_urls->{$uri};
+    return $self->sso_urls->{$uri};
 }
 
 =head2 my $url = $idp->slo_url($binding)
@@ -280,7 +280,7 @@ binding.  The C<$binding> should be the full URI or [2.0] a name.
 sub slo_url {
     my ($self, $binding) = @_;
     my $uri = $self->binding($binding);
-    $self->slo_urls->{$uri};
+    return $self->slo_urls->{$uri};
 }
 
 =head2 my $url = $idp->art_url($binding)
@@ -293,7 +293,7 @@ binding.  The C<$binding> should be the full URI or [2.0] a name.
 sub art_url {
     my ($self, $binding) = @_;
     my $uri = $self->binding($binding);
-    $self->art_urls->{$uri};
+    return $self->art_urls->{$uri};
 }
 
 =head2 my $url = $idp->cert($use)
@@ -310,7 +310,7 @@ $use are returned.
 
 sub cert {
     my ($self, $use) = @_;
-    $self->certs->{$use};
+    return $self->certs->{$use};
 }
 
 =head2 my $binding = $idp->binding($urn|$name)
@@ -323,7 +323,7 @@ method C<urnFor()>.
 
 sub binding {
     my ($self, $name) = @_;
-    Net::SAML2::Binding->urnFor($name);
+    return Net::SAML2::Binding->urnFor($name);
 }
 
 =head2 my $nameid = $idp->format($short_name)
@@ -340,7 +340,7 @@ If no NameID formats were advertised by the IdP, this returns C<undef>.
 sub format {
     my ($self, $short_name) = @_;
     my $format = $short_name // $self->default_format;
-    defined $format ? $self->formats->{$format} : undef;
+    return defined $format ? $self->formats->{$format} : undef;
 }
 
 __PACKAGE__->meta->make_immutable;
