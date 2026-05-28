@@ -85,19 +85,19 @@ sub to_xml {
     @$attrs
         or die "Unable to create attribute consuming service, we require attributes";
 
-    my $make  = XML::Generator->new;
+    my $x  = XML::Generator->new;
     my $serv  = $self->service_description;
     my $ns    = $self->namespace;
     my $lang  = +{ 'xml:lang' => $self->lang };
 
-    return $make->AttributeConsumingService(
+    return $x->AttributeConsumingService(
         $ns,
         {
             index     => $self->index,
             isDefault => xml_bool($self->default),
         },
-        $make->ServiceName($ns, $lang, $self->service_name),
-        $serv ? $make->ServiceDescription($ns, $lang, $serv) : (),
+        $x->ServiceName($ns, $lang, $self->service_name),
+        $serv ? $x->ServiceDescription($ns, $lang, $serv) : (),
         (map $_->to_xml, @$attrs),
     );
 }

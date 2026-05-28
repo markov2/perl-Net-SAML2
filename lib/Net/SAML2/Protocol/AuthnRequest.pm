@@ -115,7 +115,7 @@ my %protocol_bindings = (
 sub as_xml {
     my ($self) = @_;
 
-    my $make   = XML::Generator->new(':std');
+    my $x   = XML::Generator->new(':std');
     my $protocol_binding = $protocol_bindings{$self->protocol_binding // ''};
 
     my %req_attrs = (
@@ -142,54 +142,54 @@ sub as_xml {
     @are_null = grep !defined $issuer_attrs{$_}, keys %issuer_attrs;
     delete @issuer_attrs{@are_null} if @are_null;
 
-    return $make->AuthnRequest($samlp,
+    return $x->AuthnRequest($samlp,
         \%req_attrs,
-        $make->Issuer($saml, \%issuer_attrs, $self->issuer),
-        $self->_set_name_id($make),
-        $self->_set_name_policy_format($make),
-        $self->_set_requested_authn_context($make),
-        $self->_set_scoping($make),
+        $x->Issuer($saml, \%issuer_attrs, $self->issuer),
+        $self->_set_name_id($x),
+        $self->_set_name_policy_format($x),
+        $self->_set_requested_authn_context($x),
+        $self->_set_scoping($x),
     );
 }
 
 sub _set_scoping {
-    my ($self, $make) = @_;
+    my ($self, $x) = @_;
     my $providers  = $self->identity_providers;
     @$providers or return undef;
 
-    my @providers = map $make->IDPEntry($samlp, { ProviderID => $_ }), @$providers;
-    return $make->Scoping($samlp, $make->IDPList($samlp, @providers));
+    my @providers = map $x->IDPEntry($samlp, { ProviderID => $_ }), @$providers;
+    return $x->Scoping($samlp, $x->IDPList($samlp, @providers));
 }
 
 sub _set_name_id {
-    my ($self, $make) = @_;
+    my ($self, $x) = @_;
     my $nameid = $self->nameid;
     defined $nameid or return undef;
-    return $make->Subject($saml, $make->NameID($saml, { NameQualifier => $nameid }));
+    return $x->Subject($saml, $x->NameID($saml, { NameQualifier => $nameid }));
 }
 
 sub _set_name_policy_format {
-    my ($self, $make) = @_;
+    my ($self, $x) = @_;
     my $format = $self->nameidpolicy_format;
     defined $format or return undef;
 
-    return $make->NameIDPolicy($samlp, {
+    return $x->NameIDPolicy($samlp, {
         Format => $format,
         ($self->nameid_allow_create ? (AllowCreate => xml_bool($self->nameid_allow_create)) : ()),
     });
 }
 
 sub _set_requested_authn_context {
-    my ($self, $make) = @_;
+    my ($self, $x) = @_;
 
     my $c = $self->AuthnContextClassRef;
     my $d = $self->AuthnContextDeclRef;
     @$c || @$d or return;
 
-    my @class = map $make->AuthnContextClassRef($saml, undef, $_), @$c;
-    my @decl  = map $make->AuthnContextDeclRef($saml, undef, $_), @$d;
+    my @class = map $x->AuthnContextClassRef($saml, undef, $_), @$c;
+    my @decl  = map $x->AuthnContextDeclRef($saml, undef, $_), @$d;
 
-    return $make->RequestedAuthnContext(
+    return $x->RequestedAuthnContext(
         $samlp,
         { Comparison => $self->RequestedAuthnContext_Comparison },
         @class,

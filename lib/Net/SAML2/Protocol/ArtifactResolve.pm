@@ -62,21 +62,21 @@ Returns the request as XML string.
 sub as_xml {
     my $self = shift;
 
-    my $make     = XML::Generator->new(':pretty');
+    my $x     = XML::Generator->new(':pretty');
     my $saml     = [ saml  => URN_ASSERTION ];
     my $samlp    = [ samlp => URN_PROTOCOL  ];
     my $provider = $self->provider;
 
-    return $make->xml(
-        $make->ArtifactResolve($samlp, {
+    return $x->xml(
+        $x->ArtifactResolve($samlp, {
               ID => $self->id,
               IssueInstant => $self->issue_instant,
               Destination  => $self->destination,
               defined $provider ? (ProviderName => $provider) : (),
               Version => '2.0',
             },
-            $make->Issuer($saml, $self->issuer),
-            $make->Artifact($samlp, $self->artifact),
+            $x->Issuer($saml, $self->issuer),
+            $x->Artifact($samlp, $self->artifact),
         )
     );
 }

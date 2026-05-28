@@ -67,10 +67,10 @@ Create an XML fragment.
 =cut
 
 sub to_xml {
-    my $self = shift;
+    my $self  = shift;
     my %attrs = $self->_build_attributes;
-    my $make  = $self->_xml_gen();
-    return $make->RequestedAttribute($self->namespace, \%attrs);
+    my $x     = $self->_xml_gen();
+    return $x->RequestedAttribute($self->namespace, \%attrs);
 }
 
 =head2 my %attrs = $attr->_build_attributes()
